@@ -13,8 +13,8 @@ def get_ftp_directory():
     return ftp_directory
 
 def find_target_directories(ftp_directory):
-    current_month = datetime.now().strftime("%Y-%m")
     target_dirs = []
+    month_pattern = re.compile(r'\d{4}-\d{2}')
 
     print(f"Scanning for target directories in {ftp_directory}...")  # Debug print
 
@@ -26,20 +26,20 @@ def find_target_directories(ftp_directory):
         if os.path.isdir(entry_path) and len(entry) == 3 and re.match(r'^[A-Z]{3}$', entry):
             quotes_dir = os.path.join(entry_path, "quotes")
             if os.path.isdir(quotes_dir):
-                month_dir = os.path.join(quotes_dir, current_month)
-                if os.path.isdir(month_dir):
-                    target_dirs.append((month_dir, entry))
-                    print(f"Added 3-letter DARWIN target directory: {month_dir}")
+                for month_dir in os.listdir(quotes_dir):
+                    if month_pattern.match(month_dir):
+                        target_dirs.append((os.path.join(quotes_dir, month_dir), entry))
+                        print(f"Added 3-letter DARWIN target directory: {os.path.join(quotes_dir, month_dir)}")
 
         # Check for 4-letter DARWIN directories under the base 3-letter directory
         former_dir = os.path.join(entry_path, f"_{entry}_former_var10")
         if os.path.isdir(former_dir):
             quotes_dir = os.path.join(former_dir, "quotes")
             if os.path.isdir(quotes_dir):
-                month_dir = os.path.join(quotes_dir, current_month)
-                if os.path.isdir(month_dir):
-                    target_dirs.append((month_dir, entry))
-                    print(f"Added 4-letter DARWIN target directory: {month_dir}")
+                for month_dir in os.listdir(quotes_dir):
+                    if month_pattern.match(month_dir):
+                        target_dirs.append((os.path.join(quotes_dir, month_dir), entry))
+                        print(f"Added 4-letter DARWIN target directory: {os.path.join(quotes_dir, month_dir)}")
 
     return target_dirs
 
@@ -120,14 +120,18 @@ def main():
     target_directories = find_target_directories(ftp_directory)
 
     if not target_directories:
-        print("No target directories found for the current month.")
+        print("No target directories found.")
         return
 
     active_darwins_3 = set()
     active_darwins_4 = set()
+    all_darwins_3 = set()
+    all_darwins_4 = set()
 
     for target_dir, parent_darwin in target_directories:
         darwins_3, darwins_4 = list_darwins_in_quotes_dir(target_dir, parent_darwin)
+        all_darwins_3.update(darwins_3)
+        all_darwins_4.update(darwins_4)
         for darwin in darwins_3:
             if is_active_darwin(target_dir, darwin):
                 active_darwins_3.add(darwin)
@@ -143,7 +147,7 @@ def main():
     letter_counts = Counter([directory[1] for directory in target_directories])  # Use the second element for letter counts
     active_darwins_per_letter = Counter(active_darwin_letters)
     potential_darwins = potential_darwins_per_letter()
-    total_darwins = sum(letter_counts.values())
+    total_darwins = len(all_darwins_3) + len(all_darwins_4)
     total_active_darwins = len(active_darwins_3) + len(active_darwins_4)
     active_percentage = (total_active_darwins / total_darwins * 100) if total_darwins > 0 else 0
     occupancy_rates, vacancy_rates = calculate_occupancy_and_vacancy(letter_counts, active_darwins_per_letter, potential_darwins)
