@@ -3,16 +3,6 @@ import re
 from collections import Counter
 from datetime import datetime, timedelta
 
-def get_letter_range():
-    while True:
-        start_letter = input("Enter the starting letter of the range (A-Z): ").upper()
-        end_letter = input("Enter the ending letter of the range (A-Z): ").upper()
-        if start_letter.isalpha() and end_letter.isalpha() and start_letter <= end_letter:
-            break
-        else:
-            print("Invalid input. Please enter valid letters in alphabetical order.")
-    return start_letter, end_letter
-
 def get_ftp_directory():
     while True:
         ftp_directory = input("Enter the path to the FTP directory: ")
@@ -22,7 +12,7 @@ def get_ftp_directory():
             print("Invalid path. Please enter a valid directory path.")
     return ftp_directory
 
-def find_target_directories(ftp_directory, start_letter, end_letter):
+def find_target_directories(ftp_directory):
     current_month = datetime.now().strftime("%Y-%m")
     target_dirs = []
 
@@ -32,27 +22,26 @@ def find_target_directories(ftp_directory, start_letter, end_letter):
         entry_path = os.path.join(ftp_directory, entry)
         print(f"Checking {entry_path}...")  # Debug print
 
-        # Check for 3-letter DARWIN directories within the specified range
+        # Check for 3-letter DARWIN directories
         if os.path.isdir(entry_path) and len(entry) == 3 and re.match(r'^[A-Z]{3}$', entry):
-            if start_letter <= entry[0] <= end_letter:
-                quotes_dir = os.path.join(entry_path, "quotes")
-                print(f"Looking for quotes in {quotes_dir}...")  # Debug print
-                if os.path.isdir(quotes_dir):
-                    month_dir = os.path.join(quotes_dir, current_month)
-                    print(f"Checking month directory: {month_dir}...")  # Debug print
-                    if os.path.isdir(month_dir):
-                        target_dirs.append(month_dir)
+            quotes_dir = os.path.join(entry_path, "quotes")
+            print(f"Looking for quotes in {quotes_dir}...")  # Debug print
+            if os.path.isdir(quotes_dir):
+                month_dir = os.path.join(quotes_dir, current_month)
+                print(f"Checking month directory: {month_dir}...")  # Debug print
+                if os.path.isdir(month_dir):
+                    target_dirs.append(month_dir)
 
-                # Check for 4-letter DARWIN directories under the base 3-letter directory
-                former_dir = os.path.join(entry_path, f"_{entry}_former_var10")
-                print(f"Checking former directory: {former_dir}...")  # Debug print
-                if os.path.isdir(former_dir):
-                    quotes_dir = os.path.join(former_dir, "quotes")
-                    if os.path.isdir(quotes_dir):
-                        month_dir = os.path.join(quotes_dir, current_month)
-                        print(f"Checking month directory: {month_dir}...")  # Debug print
-                        if os.path.isdir(month_dir):
-                            target_dirs.append(month_dir)
+        # Check for 4-letter DARWIN directories under the base 3-letter directory
+        former_dir = os.path.join(entry_path, f"_{entry}_former_var10")
+        print(f"Checking former directory: {former_dir}...")  # Debug print
+        if os.path.isdir(former_dir):
+            quotes_dir = os.path.join(former_dir, "quotes")
+            if os.path.isdir(quotes_dir):
+                month_dir = os.path.join(quotes_dir, current_month)
+                print(f"Checking month directory: {month_dir}...")  # Debug print
+                if os.path.isdir(month_dir):
+                    target_dirs.append(month_dir)
 
     return target_dirs
 
@@ -84,31 +73,6 @@ def is_active_darwin(quotes_dir, darwin):
                     return True
     return False
 
-def get_filtered_directories(ftp_directory, start_letter, end_letter):
-    all_entries = os.listdir(ftp_directory)
-    ticker_pattern = re.compile(r'^[A-Z]{3,4}$')
-    
-    filtered_directories = [
-        entry for entry in all_entries
-        if os.path.isdir(os.path.join(ftp_directory, entry)) and
-        ticker_pattern.match(entry) and
-        start_letter <= entry[0] <= end_letter
-    ]
-    return filtered_directories
-
-def potential_darwins_per_letter(start_letter, end_letter):
-    total_potential = {}
-    for letter in range(ord(start_letter), ord(end_letter) + 1):
-        char = chr(letter)
-        num_3_char = 26 * 26
-        num_4_char = 26 * 26 * 26
-        total_potential[char] = num_3_char + num_4_char
-    return total_potential
-
-def calculate_total_potential_darwins(start_letter, end_letter):
-    potential_darwins = potential_darwins_per_letter(start_letter, end_letter)
-    return sum(potential_darwins.values())
-
 def calculate_occupancy_and_vacancy(letter_counts, active_darwins_per_letter, potential_darwins):
     occupancy = {}
     vacancy = {}
@@ -125,13 +89,36 @@ def calculate_occupancy_and_vacancy(letter_counts, active_darwins_per_letter, po
         vacancy[letter] = vacancy_rate
     return occupancy, vacancy
 
+def get_all_directories(ftp_directory):
+    all_entries = os.listdir(ftp_directory)
+    ticker_pattern = re.compile(r'^[A-Z]{3,4}$')
+    
+    filtered_directories = [
+        entry for entry in all_entries
+        if os.path.isdir(os.path.join(ftp_directory, entry)) and
+        ticker_pattern.match(entry)
+    ]
+    return filtered_directories
+
+def potential_darwins_per_letter():
+    potential_darwins = {}
+    for letter in range(ord('A'), ord('Z') + 1):
+        char = chr(letter)
+        num_3_char = 26 * 26
+        num_4_char = 26 * 26 * 26
+        potential_darwins[char] = num_3_char + num_4_char
+    return potential_darwins
+
+def calculate_total_potential_darwins():
+    potential_darwins = potential_darwins_per_letter()
+    return sum(potential_darwins.values())
+
 def main():
     ftp_directory = get_ftp_directory()
-    start_letter, end_letter = get_letter_range()
 
-    filtered_directories = get_filtered_directories(ftp_directory, start_letter, end_letter)
+    filtered_directories = get_all_directories(ftp_directory)
 
-    target_directories = find_target_directories(ftp_directory, start_letter, end_letter)
+    target_directories = find_target_directories(ftp_directory)
     if not target_directories:
         print("No target directories found for the current month.")
         return
@@ -151,8 +138,8 @@ def main():
                 active_darwins.append(darwin)
                 active_darwins_per_letter[darwin[0]] += 1
 
-    potential_darwins = potential_darwins_per_letter(start_letter, end_letter)
-    total_potential_darwins = calculate_total_potential_darwins(start_letter, end_letter)
+    potential_darwins = potential_darwins_per_letter()
+    total_potential_darwins = calculate_total_potential_darwins()
 
     total_darwins = sum(letter_counts.values())
     total_active_darwins = len(active_darwins)
@@ -160,8 +147,8 @@ def main():
 
     occupancy_rates, vacancy_rates = calculate_occupancy_and_vacancy(letter_counts, active_darwins_per_letter, potential_darwins)
 
-    print("Number of Darwins starting with each letter in the specified range:")
-    for letter in range(ord(start_letter), ord(end_letter) + 1):
+    print("Number of Darwins starting with each letter:")
+    for letter in range(ord('A'), ord('Z') + 1):
         char = chr(letter)
         count = letter_counts.get(char, 0)
         active_count = active_darwins_per_letter.get(char, 0)
@@ -169,10 +156,10 @@ def main():
         vacancy_rate = vacancy_rates.get(char, 0)
         print(f"{char}: Generated ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)")
 
-    print(f"\nTotal number of Darwins in the range: {total_darwins}")
+    print(f"\nTotal number of Darwins: {total_darwins}")
     print(f"Total number of active Darwins: {total_active_darwins}")
     print(f"Percentage of active Darwins: {active_percentage:.2f}%")
-    print(f"Total number of potential Darwins in the range: {total_potential_darwins}")
+    print(f"Total number of potential Darwins: {total_potential_darwins}")
 
     print("\nActive Darwins (with updated quotes within the last month):")
     with open('active_darwins.txt', 'w') as f:
