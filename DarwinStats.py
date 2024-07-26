@@ -84,7 +84,7 @@ def calculate_occupancy_and_vacancy(letter_counts, active_darwins_per_letter, po
         potential = potential_darwins.get(letter, 0)
         vacancy_rate = ((potential - count) / potential * 100) if potential > 0 else 0
         occupancy[letter] = {
-            'generated': count,
+            'known': count,
             'active': active_count,
             'occupancy_rate': occupancy_rate
         }
@@ -139,7 +139,7 @@ def main():
             if is_active_darwin(target_dir, darwin):
                 active_darwins_4.add((darwin, parent))
 
-    # Count base 3-letter directories as generated DARWINs
+    # Count base 3-letter directories as known DARWINs
     for entry in os.listdir(ftp_directory):
         if len(entry) == 3 and re.match(r'^[A-Z]{3}$', entry):
             all_darwins_3.add(entry)
@@ -185,7 +185,7 @@ def main():
             active_count = active_darwins_per_letter.get(char, 0)
             occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
             vacancy_rate = vacancy_rates.get(char, 0)
-            f.write(f"{char}: Generated ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)\n")
+            f.write(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)\n")
 
         f.write(f"\nTotal number of Darwins: {total_darwins}\n")
         f.write(f"Total number of active Darwins: {total_active_darwins}\n")
@@ -200,7 +200,7 @@ def main():
         active_count = active_darwins_per_letter.get(char, 0)
         occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
         vacancy_rate = vacancy_rates.get(char, 0)
-        print(f"{char}: Generated ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)")
+        print(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)")
 
     print(f"\nTotal number of Darwins: {total_darwins}")
     print(f"Total number of active Darwins: {total_active_darwins}")
