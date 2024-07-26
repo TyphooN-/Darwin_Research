@@ -185,7 +185,7 @@ def main():
             active_count = active_darwins_per_letter.get(char, 0)
             occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
             vacancy_rate = vacancy_rates.get(char, 0)
-            f.write(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)\n")
+            f.write(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy ({vacancy_rate:.2f}%)\n")
 
         f.write(f"\nTotal number of Darwins: {total_darwins}\n")
         f.write(f"Total number of active Darwins: {total_active_darwins}\n")
@@ -200,7 +200,7 @@ def main():
         active_count = active_darwins_per_letter.get(char, 0)
         occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
         vacancy_rate = vacancy_rates.get(char, 0)
-        print(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)")
+        print(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy ({vacancy_rate:.2f}%)")
 
     print(f"\nTotal number of Darwins: {total_darwins}")
     print(f"Total number of active Darwins: {total_active_darwins}")
