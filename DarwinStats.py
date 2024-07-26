@@ -139,12 +139,11 @@ def main():
             if is_active_darwin(target_dir, darwin):
                 active_darwins_4.add((darwin, parent))
 
-    # Extract the base letters from the active DARWINs for letter counts
+    # Extract the base letters from the DARWINs for letter counts
+    letter_counts = Counter(darwin[0] for darwin in all_darwins_3)
+    letter_counts.update(darwin[0] for darwin, _ in all_darwins_4)
     active_darwin_letters = [darwin[0] for darwin in active_darwins_3]
     active_darwin_letters += [parent for _, parent in active_darwins_4]
-
-    # Ensure you are using Counter here
-    letter_counts = Counter([directory[1] for directory in target_directories])  # Use the second element for letter counts
     active_darwins_per_letter = Counter(active_darwin_letters)
     potential_darwins = potential_darwins_per_letter()
     total_darwins = len(all_darwins_3) + len(all_darwins_4)
