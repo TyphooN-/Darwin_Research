@@ -166,6 +166,16 @@ def main():
         for darwin, parent in sorted(active_darwins_4):
             f.write(f"{darwin} (Parent: {parent})\n")
 
+    # Write known DARWINs to the file
+    with open('Known_Darwins.txt', 'w') as f:
+        f.write("Known 3-letter DARWINs:\n")
+        for darwin in sorted(all_darwins_3):
+            f.write(f"{darwin}\n")
+
+        f.write("\nKnown 4-letter DARWINs and their parents:\n")
+        for darwin, parent in sorted(all_darwins_4):
+            f.write(f"{darwin} (Parent: {parent})\n")
+
     # Write statistics to the file
     with open('Darwin_Stats.txt', 'w') as f:
         f.write("Number of Darwins starting with each letter:\n")
@@ -198,8 +208,8 @@ def main():
     print(f"Total number of potential Darwins: {sum(potential_darwins.values())}")
 
     print("\nThe list of active DARWINs has been written to 'Active_Darwins.txt'.")
+    print("The list of known DARWINs has been written to 'Known_Darwins.txt'.")
     print("The statistics have been written to 'Darwin_Stats.txt'.")
 
 if __name__ == "__main__":
     main()
-
