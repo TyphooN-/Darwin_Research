@@ -152,7 +152,7 @@ def main():
     occupancy_rates, vacancy_rates = calculate_occupancy_and_vacancy(letter_counts, active_darwins_per_letter, potential_darwins)
 
     # Write active DARWINs to the file
-    with open('active_darwins.txt', 'w') as f:
+    with open('Active_Darwins.txt', 'w') as f:
         f.write("Active 3-letter DARWINs:\n")
         for darwin in sorted(active_darwins_3):
             f.write(f"{darwin}\n")
@@ -176,7 +176,7 @@ def main():
     print(f"Percentage of active Darwins: {active_percentage:.2f}%")
     print(f"Total number of potential Darwins: {sum(potential_darwins.values())}")
 
-    print("\nThe list of active DARWINs has been written to 'active_darwins.txt'.")
+    print("\nThe list of active DARWINs has been written to 'Active_Darwins.txt'.")
 
 if __name__ == "__main__":
     main()
