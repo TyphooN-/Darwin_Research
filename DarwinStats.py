@@ -139,6 +139,11 @@ def main():
             if is_active_darwin(target_dir, darwin):
                 active_darwins_4.add((darwin, parent))
 
+    # Count base 3-letter directories as generated DARWINs
+    for entry in os.listdir(ftp_directory):
+        if len(entry) == 3 and re.match(r'^[A-Z]{3}$', entry):
+            all_darwins_3.add(entry)
+
     # Extract the base letters from the DARWINs for letter counts
     letter_counts = Counter(darwin[0] for darwin in all_darwins_3)
     letter_counts.update(darwin[0] for darwin, _ in all_darwins_4)
@@ -161,6 +166,22 @@ def main():
         for darwin, parent in sorted(active_darwins_4):
             f.write(f"{darwin} (Parent: {parent})\n")
 
+    # Write statistics to the file
+    with open('Darwin_Stats.txt', 'w') as f:
+        f.write("Number of Darwins starting with each letter:\n")
+        for letter in range(ord('A'), ord('Z') + 1):
+            char = chr(letter)
+            count = letter_counts.get(char, 0)
+            active_count = active_darwins_per_letter.get(char, 0)
+            occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
+            vacancy_rate = vacancy_rates.get(char, 0)
+            f.write(f"{char}: Generated ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)\n")
+
+        f.write(f"\nTotal number of Darwins: {total_darwins}\n")
+        f.write(f"Total number of active Darwins: {total_active_darwins}\n")
+        f.write(f"Percentage of active Darwins: {active_percentage:.2f}%\n")
+        f.write(f"Total number of potential Darwins: {sum(potential_darwins.values())}\n")
+
     # Print statistics to the terminal
     print("Number of Darwins starting with each letter:")
     for letter in range(ord('A'), ord('Z') + 1):
@@ -177,6 +198,8 @@ def main():
     print(f"Total number of potential Darwins: {sum(potential_darwins.values())}")
 
     print("\nThe list of active DARWINs has been written to 'Active_Darwins.txt'.")
+    print("The statistics have been written to 'Darwin_Stats.txt'.")
 
 if __name__ == "__main__":
     main()
+
