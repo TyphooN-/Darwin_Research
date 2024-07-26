@@ -149,6 +149,7 @@ def main():
     total_active_darwins = len(active_darwins_3) + len(active_darwins_4)
     total_potential_darwins = sum(potential_darwins.values())
     total_vacancy = total_potential_darwins - total_darwins
+    total_vacancy_percentage = (total_vacancy / total_potential_darwins * 100) if total_potential_darwins > 0 else 0
     active_percentage = (total_active_darwins / total_darwins * 100) if total_darwins > 0 else 0
     occupancy_rates, vacancy_rates = calculate_occupancy_and_vacancy(letter_counts, active_darwins_per_letter, potential_darwins)
 
@@ -181,13 +182,13 @@ def main():
             active_count = active_darwins_per_letter.get(char, 0)
             occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
             vacancy_rate = vacancy_rates.get(char, 0)
-            f.write(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)\n")
+            f.write(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy ({vacancy_rate:.2f}%)\n")
 
         f.write(f"\nTotal number of Darwins: {total_darwins}\n")
         f.write(f"Total number of active Darwins: {total_active_darwins}\n")
         f.write(f"Percentage of active Darwins: {active_percentage:.2f}%\n")
         f.write(f"Total number of potential Darwins: {total_potential_darwins}\n")
-        f.write(f"Total vacancy: {total_vacancy}\n")
+        f.write(f"Total vacancy: {total_vacancy} ({total_vacancy_percentage:.2f}%)\n")
 
     # Print statistics to the terminal
     print("Number of Darwins starting with each letter:")
@@ -197,13 +198,13 @@ def main():
         active_count = active_darwins_per_letter.get(char, 0)
         occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
         vacancy_rate = vacancy_rates.get(char, 0)
-        print(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)")
+        print(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy ({vacancy_rate:.2f}%)")
 
     print(f"\nTotal number of Darwins: {total_darwins}")
     print(f"Total number of active Darwins: {total_active_darwins}")
     print(f"Percentage of active Darwins: {active_percentage:.2f}%")
     print(f"Total number of potential Darwins: {total_potential_darwins}")
-    print(f"Total vacancy: {total_vacancy}")
+    print(f"Total vacancy: {total_vacancy} ({total_vacancy_percentage:.2f}%)")
 
     print("\nThe list of active DARWINs has been written to 'Active_Darwins.txt'.")
     print("The list of known DARWINs has been written to 'Known_Darwins.txt'.")
