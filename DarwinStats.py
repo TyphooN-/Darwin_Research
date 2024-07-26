@@ -47,7 +47,7 @@ def list_darwins_in_quotes_dir(quotes_dir, parent_darwin):
     darwins_3 = set()
     darwins_4 = set()
 
-    print(f"Listing DARWINs in {quotes_dir}...")  # Debug print
+    print(f"Searching for DARWINs in {quotes_dir}...")  # Debug print
     for file in os.listdir(quotes_dir):
         if file.endswith('.csv.gz'):
             match = re.match(r'^([A-Z]{3,4})\.\d+\.\d+_\d+_\d{4}-\d{2}-\d{2}\.\d+\.csv\.gz$', file)
