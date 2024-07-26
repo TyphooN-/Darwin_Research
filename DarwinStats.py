@@ -16,11 +16,10 @@ def find_target_directories(ftp_directory):
     target_dirs = []
     month_pattern = re.compile(r'\d{4}-\d{2}')
 
-    print(f"Scanning for target directories in {ftp_directory}...")  # Debug print
+    print(f"Scanning for target directories in {ftp_directory}...")
 
     for entry in os.listdir(ftp_directory):
         entry_path = os.path.join(ftp_directory, entry)
-        print(f"Checking {entry_path}...")  # Debug print
 
         # Check for 3-letter DARWIN directories
         if os.path.isdir(entry_path) and len(entry) == 3 and re.match(r'^[A-Z]{3}$', entry):
@@ -29,7 +28,6 @@ def find_target_directories(ftp_directory):
                 for month_dir in os.listdir(quotes_dir):
                     if month_pattern.match(month_dir):
                         target_dirs.append((os.path.join(quotes_dir, month_dir), entry))
-                        print(f"Added 3-letter DARWIN target directory: {os.path.join(quotes_dir, month_dir)}")
 
         # Check for 4-letter DARWIN directories under the base 3-letter directory
         former_dir = os.path.join(entry_path, f"_{entry}_former_var10")
@@ -39,7 +37,6 @@ def find_target_directories(ftp_directory):
                 for month_dir in os.listdir(quotes_dir):
                     if month_pattern.match(month_dir):
                         target_dirs.append((os.path.join(quotes_dir, month_dir), entry))
-                        print(f"Added 4-letter DARWIN target directory: {os.path.join(quotes_dir, month_dir)}")
 
     return target_dirs
 
@@ -47,7 +44,6 @@ def list_darwins_in_quotes_dir(quotes_dir, parent_darwin):
     darwins_3 = set()
     darwins_4 = set()
 
-    print(f"Searching for DARWINs in {quotes_dir}...")  # Debug print
     for file in os.listdir(quotes_dir):
         if file.endswith('.csv.gz'):
             match = re.match(r'^([A-Z]{3,4})\.\d+\.\d+_\d+_\d{4}-\d{2}-\d{2}\.\d+\.csv\.gz$', file)
@@ -57,7 +53,6 @@ def list_darwins_in_quotes_dir(quotes_dir, parent_darwin):
                     darwins_3.add(darwin)
                 elif len(darwin) == 4:
                     darwins_4.add((darwin, parent_darwin))
-                    print(f"Found 4-letter DARWIN: {darwin} (Parent: {parent_darwin})")
 
     return darwins_3, darwins_4
 
@@ -71,7 +66,6 @@ def is_active_darwin(quotes_dir, darwin):
                 one_month_ago = datetime.now() - timedelta(days=30)
                 if file_date >= one_month_ago:
                     active = True
-                    print(f"Active DARWIN found: {darwin} in file {file}")
                     break
     return active
 
@@ -153,6 +147,8 @@ def main():
     potential_darwins = potential_darwins_per_letter()
     total_darwins = len(all_darwins_3) + len(all_darwins_4)
     total_active_darwins = len(active_darwins_3) + len(active_darwins_4)
+    total_potential_darwins = sum(potential_darwins.values())
+    total_vacancy = total_potential_darwins - total_darwins
     active_percentage = (total_active_darwins / total_darwins * 100) if total_darwins > 0 else 0
     occupancy_rates, vacancy_rates = calculate_occupancy_and_vacancy(letter_counts, active_darwins_per_letter, potential_darwins)
 
@@ -185,12 +181,13 @@ def main():
             active_count = active_darwins_per_letter.get(char, 0)
             occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
             vacancy_rate = vacancy_rates.get(char, 0)
-            f.write(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy ({vacancy_rate:.2f}%)\n")
+            f.write(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)\n")
 
         f.write(f"\nTotal number of Darwins: {total_darwins}\n")
         f.write(f"Total number of active Darwins: {total_active_darwins}\n")
         f.write(f"Percentage of active Darwins: {active_percentage:.2f}%\n")
-        f.write(f"Total number of potential Darwins: {sum(potential_darwins.values())}\n")
+        f.write(f"Total number of potential Darwins: {total_potential_darwins}\n")
+        f.write(f"Total vacancy: {total_vacancy}\n")
 
     # Print statistics to the terminal
     print("Number of Darwins starting with each letter:")
@@ -200,12 +197,13 @@ def main():
         active_count = active_darwins_per_letter.get(char, 0)
         occupancy_rate = occupancy_rates.get(char, {}).get('occupancy_rate', 0)
         vacancy_rate = vacancy_rates.get(char, 0)
-        print(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy ({vacancy_rate:.2f}%)")
+        print(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy Rate ({vacancy_rate:.2f}%)")
 
     print(f"\nTotal number of Darwins: {total_darwins}")
     print(f"Total number of active Darwins: {total_active_darwins}")
     print(f"Percentage of active Darwins: {active_percentage:.2f}%")
-    print(f"Total number of potential Darwins: {sum(potential_darwins.values())}")
+    print(f"Total number of potential Darwins: {total_potential_darwins}")
+    print(f"Total vacancy: {total_vacancy}")
 
     print("\nThe list of active DARWINs has been written to 'Active_Darwins.txt'.")
     print("The list of known DARWINs has been written to 'Known_Darwins.txt'.")
