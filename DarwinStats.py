@@ -140,7 +140,7 @@ def main():
         total_darwins = len(all_darwins_3) + len(all_darwins_4)
         total_active_darwins = len(active_darwins_3) + len(active_darwins_4)
         print(f"Processed {target_dir} ({progress_percentage:.2f}% complete):")
-        print(f"  - Total DARWINs: {total_darwins}")
+        print(f"  - Known DARWINs: {total_darwins}")
         print(f"  - Active DARWINs: {total_active_darwins}\n")
 
     # Count base 3-letter directories as known DARWINs
@@ -194,7 +194,7 @@ def main():
             vacancy_rate = vacancy_rates.get(char, 0)
             f.write(f"{char}: Known ({count}), Active ({active_count} ({occupancy_rate:.2f}%)), Vacancy ({vacancy_rate:.2f}%)\n")
 
-        f.write(f"\nTotal number of Darwins: {total_darwins}\n")
+        f.write(f"\nTotal number of known Darwins: {total_darwins}\n")
         f.write(f"Total number of active Darwins: {total_active_darwins}\n")
         f.write(f"Percentage of active Darwins: {active_percentage:.2f}%\n")
         f.write(f"Total number of potential Darwins: {total_potential_darwins}\n")
