@@ -122,7 +122,9 @@ def main():
     all_darwins_3 = set()
     all_darwins_4 = set()
 
-    for target_dir, parent_darwin in target_directories:
+    total_directories = len(target_directories)
+
+    for index, (target_dir, parent_darwin) in enumerate(target_directories):
         darwins_3, darwins_4 = list_darwins_in_quotes_dir(target_dir, parent_darwin)
         all_darwins_3.update(darwins_3)
         all_darwins_4.update(darwins_4)
@@ -133,10 +135,11 @@ def main():
             if is_active_darwin(target_dir, darwin):
                 active_darwins_4.add((darwin, parent))
 
-        # Print the running tally
+        # Calculate and print the progress percentage
+        progress_percentage = (index + 1) / total_directories * 100
         total_darwins = len(all_darwins_3) + len(all_darwins_4)
         total_active_darwins = len(active_darwins_3) + len(active_darwins_4)
-        print(f"Processed {target_dir}:")
+        print(f"Processed {target_dir} ({progress_percentage:.2f}% complete):")
         print(f"  - Total DARWINs: {total_darwins}")
         print(f"  - Active DARWINs: {total_active_darwins}\n")
 
