@@ -45,14 +45,17 @@ def main():
     positions_files = find_positions_files(root_dir)
     symbol_tally = tally_traded_symbols(positions_files)
     
+    # Sort the results by count in descending order
+    sorted_tally = sorted(symbol_tally.items(), key=lambda item: item[1], reverse=True)
+    
     # Print the results
     print("Traded Symbols Tally:")
-    for symbol, count in symbol_tally.items():
+    for symbol, count in sorted_tally:
         print(f"{symbol}: {count}")
 
     # Write the results to a file
     with open("Traded_Symbols.txt", 'w') as output_file:
-        for symbol, count in symbol_tally.items():
+        for symbol, count in sorted_tally:
             output_file.write(f"{symbol}: {count}\n")
     
     print("Results written to Traded_Symbols.txt")
