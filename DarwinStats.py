@@ -133,6 +133,13 @@ def main():
             if is_active_darwin(target_dir, darwin):
                 active_darwins_4.add((darwin, parent))
 
+        # Print the running tally
+        total_darwins = len(all_darwins_3) + len(all_darwins_4)
+        total_active_darwins = len(active_darwins_3) + len(active_darwins_4)
+        print(f"Processed {target_dir}:")
+        print(f"  - Total DARWINs: {total_darwins}")
+        print(f"  - Active DARWINs: {total_active_darwins}\n")
+
     # Count base 3-letter directories as known DARWINs
     for entry in os.listdir(ftp_directory):
         if len(entry) == 3 and re.match(r'^[A-Z]{3}$', entry):
