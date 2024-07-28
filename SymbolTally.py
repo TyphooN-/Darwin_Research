@@ -11,24 +11,24 @@ def get_ftp_directory():
             print("Invalid path. Please enter a valid directory path.")
     return ftp_directory
 
-def find_positions_files(root_dir):
-    positions_files = []
-    print("Scanning for POSITIONS files...")
+def find_target_files(root_dir, target_files):
+    found_files = []
+    print(f"Scanning for target files: {', '.join(target_files)}...")
     for dirpath, _, filenames in os.walk(root_dir):
         for filename in filenames:
-            if filename == 'POSITIONS':
-                positions_files.append(os.path.join(dirpath, filename))
-                print(f"Found POSITIONS file: {os.path.join(dirpath, filename)}")
-    print(f"Total POSITIONS files found: {len(positions_files)}")
-    return positions_files
+            if filename in target_files:
+                found_files.append(os.path.join(dirpath, filename))
+                print(f"Found {filename} file: {os.path.join(dirpath, filename)}")
+    print(f"Total target files found: {len(found_files)}")
+    return found_files
 
-def tally_traded_symbols(positions_files):
+def tally_traded_symbols(target_files):
     symbol_pattern = re.compile(r"'([A-Za-z0-9+]+)'")
     symbol_tally = defaultdict(int)
     
     print("Tallying traded symbols...")
-    for i, file_path in enumerate(positions_files, start=1):
-        print(f"Processing file {i}/{len(positions_files)}: {file_path}")
+    for i, file_path in enumerate(target_files, start=1):
+        print(f"Processing file {i}/{len(target_files)}: {file_path}")
         with open(file_path, 'r') as file:
             for line in file:
                 matches = symbol_pattern.findall(line)
@@ -41,9 +41,15 @@ def tally_traded_symbols(positions_files):
     return symbol_tally
 
 def main():
+    target_files = [
+        'POSITIONS', 'LOSS_AVERSION', 'LOSS_AVERSION_UNADJUSTED_VAR',
+        'MARKET_CORRELATION', 'ORDER_DIVERGENCE', 'TRADE_LOSS_AVERSION',
+        'TRADES', 'TRADE_UNADJUSTED_LOSS_AVERSION'
+    ]
+    
     root_dir = get_ftp_directory()
-    positions_files = find_positions_files(root_dir)
-    symbol_tally = tally_traded_symbols(positions_files)
+    found_files = find_target_files(root_dir, target_files)
+    symbol_tally = tally_traded_symbols(found_files)
     
     # Sort the results by count in descending order
     sorted_tally = sorted(symbol_tally.items(), key=lambda item: item[1], reverse=True)
