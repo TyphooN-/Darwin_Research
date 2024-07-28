@@ -1,6 +1,6 @@
 import os
 import re
-import json
+import csv
 from collections import defaultdict
 
 def get_ftp_directory():
@@ -28,21 +28,25 @@ def get_darwin_from_path(file_path):
     return os.path.basename(os.path.dirname(file_path))
 
 def tally_traded_symbols_per_darwin(market_correlation_files):
-    symbol_pattern = re.compile(r"'([A-Za-z0-9]+)'")
-    darwin_symbols = defaultdict(set)
-    
-    print("Tallying traded symbols per DARWIN...")
-    for i, file_path in enumerate(market_correlation_files, start=1):
-        print(f"Processing file {i}/{len(market_correlation_files)}: {file_path}")
-        darwin = get_darwin_from_path(file_path)
+    darwin_symbols = {}
+
+    for idx, file_path in enumerate(files):
+        print(f"Processing file {idx + 1}/{len(files)}: {file_path}")
         with open(file_path, 'r') as file:
-            data = json.load(file)
-            for record in data:
-                for symbol_data in record[2]:
-                    symbol = symbol_data[0]
-                    darwin_symbols[darwin].add(symbol)
-    
-    print("Tallying complete.")
+            reader = csv.reader(file)
+            for row in reader:
+                try:
+                    timestamp = int(row[0])
+                    num_periods = float(row[1])
+                    period_data = eval(row[2])  # Evaluating the string representation of the list
+                    for period in period_data:
+                        for instrument_data in period:
+                            instrument_id = instrument_data[0]
+                            if instrument_id not in darwin_symbols:
+                                darwin_symbols[instrument_id] = 0
+                            darwin_symbols[instrument_id] += 1
+                except (ValueError, IndexError, SyntaxError) as e:
+                    print(f"Error processing line in file {file_path}: {e}")
     return darwin_symbols
 
 def main():
@@ -51,16 +55,16 @@ def main():
     darwin_symbols = tally_traded_symbols_per_darwin(market_correlation_files)
     
     # Print the results
-    print("Traded Symbols per DARWIN:")
+    print("Correlated Symbols per DARWIN:")
     for darwin, symbols in darwin_symbols.items():
         print(f"{darwin}: {', '.join(symbols)}")
 
     # Write the results to a file
-    with open("Traded_Symbols_Per_Darwin.txt", 'w') as output_file:
+    with open("Correlated_Symbols_Per_Darwin.txt", 'w') as output_file:
         for darwin, symbols in darwin_symbols.items():
             output_file.write(f"{darwin}: {', '.join(symbols)}\n")
     
-    print("Results written to Traded_Symbols_Per_Darwin.txt")
+    print("Results written to Correlated_Symbols_Per_Darwin.txt")
 
 if __name__ == "__main__":
     main()
