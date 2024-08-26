@@ -25,16 +25,22 @@ results = []
 
 try:
     for drawdown_value in range(-1, -1001, -1):  # -0.1% to -100% in increments of 0.1%
-        # Locate the input fields by their 'name' attribute and enter data
+        # Locate the input fields by their 'name' attribute and clear them twice to ensure they are empty
         current_month_return = driver.find_element(By.NAME, 'currentMonthReturn')
+        current_month_return.clear()
+        current_month_return.send_keys('')  # Extra clear step
         current_month_return.clear()
         current_month_return.send_keys(current_month_return_value)
 
         prior_5_months_return = driver.find_element(By.NAME, 'prior5MonthsReturn')
         prior_5_months_return.clear()
+        prior_5_months_return.send_keys('')  # Extra clear step
+        prior_5_months_return.clear()
         prior_5_months_return.send_keys(prior_5_months_return_value)
 
         max_drawdown_6m = driver.find_element(By.NAME, 'maxDrawdown6M')
+        max_drawdown_6m.clear()
+        max_drawdown_6m.send_keys('')  # Extra clear step
         max_drawdown_6m.clear()
         max_drawdown_6m.send_keys(str(drawdown_value / 10))  # Convert to percentage
 
@@ -42,8 +48,12 @@ try:
         calculate_button = driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]')
         calculate_button.click()
 
-        # Increase wait time to 1 second
-        wait = WebDriverWait(driver, 1)
+        # Increase wait time to 20 seconds
+        wait = WebDriverWait(driver, 20)
+
+        # Debugging: Print the page source after calculation to verify if values are displayed
+        time.sleep(2)  # Wait to allow time for the results to load
+#        print(driver.page_source)
 
         # Locate the rating and allocation elements
         rating_element = wait.until(EC.visibility_of_element_located((By.XPATH, '//p[text()="Your rating:"]/following-sibling::p/span')))
@@ -52,6 +62,18 @@ try:
         # Extract the result text
         rating = rating_element.text
         allocation = allocation_element.text
+
+        # Debugging: Print values to verify they are captured correctly
+        result = {
+            'Current Month Return': current_month_return_value,
+            'Prior 5 Months Return': prior_5_months_return_value,
+            'Max Drawdown 6M': drawdown_value / 10,
+            'Rating': rating,
+            'Expected Allocation This Month': allocation
+        }
+
+        # Print all values to verify
+        print(result)
 
         # Store results along with input variables
         results.append({
