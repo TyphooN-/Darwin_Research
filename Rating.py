@@ -87,7 +87,7 @@ try:
 finally:
     # Save results to CSV
     df = pd.DataFrame(results)
-    df.to_csv('Darwinex_Calculation_Results.csv', index=False)
+    df.to_csv('Darwinex_Rating_Cap.csv', index=False)
 
     # Close the browser
     driver.quit()
