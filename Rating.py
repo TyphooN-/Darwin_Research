@@ -53,7 +53,7 @@ try:
 
         # Debugging: Print the page source after calculation to verify if values are displayed
         time.sleep(2)  # Wait to allow time for the results to load
-#        print(driver.page_source)
+#       print(driver.page_source)
 
         # Locate the rating and allocation elements
         rating_element = wait.until(EC.visibility_of_element_located((By.XPATH, '//p[text()="Your rating:"]/following-sibling::p/span')))
@@ -83,8 +83,6 @@ try:
             'Rating': rating,
             'Expected Allocation This Month': allocation
         })
-
-        time.sleep(1)  # Add a small delay to avoid overwhelming the server
 
 finally:
     # Save results to CSV
