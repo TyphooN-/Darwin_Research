@@ -1,6 +1,7 @@
 import os
 import re
 from collections import defaultdict
+from datetime import datetime  # Add this import at the top
 
 def get_ftp_directory():
     while True:
@@ -14,11 +15,14 @@ def get_ftp_directory():
 def find_target_files(root_dir, target_files):
     found_files = []
     print(f"Scanning for target files: {', '.join(target_files)}...")
-    for dirpath, _, filenames in os.walk(root_dir):
-        for filename in filenames:
-            if filename in target_files:
-                found_files.append(os.path.join(dirpath, filename))
-                print(f"Found {filename} file: {os.path.join(dirpath, filename)}")
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        # Check if this directory is a DARWIN directory (3 or 4 letters)
+        darwin_dir = os.path.basename(dirpath)
+        if re.match(r'^[A-Z]{3,4}$', darwin_dir):
+            for filename in filenames:
+                if filename in target_files:
+                    found_files.append(os.path.join(dirpath, filename))
+                    print(f"Found {filename} file: {os.path.join(dirpath, filename)}")
     print(f"Total target files found: {len(found_files)}")
     return found_files
 
@@ -49,6 +53,10 @@ def main():
     
     root_dir = get_ftp_directory()
     found_files = find_target_files(root_dir, target_files)
+    if not found_files:
+        print("No target files found.")
+        return
+    
     symbol_tally = tally_traded_symbols(found_files)
     
     # Sort the results by count in descending order
@@ -59,12 +67,16 @@ def main():
     for symbol, count in sorted_tally:
         print(f"{symbol}: {count}")
 
+    # Get current date for the output file
+    current_date = datetime.today().strftime("%Y-%m-%d")
+    output_filename = f"Traded_Symbols_{current_date}.txt"
+    
     # Write the results to a file
-    with open("Traded_Symbols.txt", 'w') as output_file:
+    with open(output_filename, 'w') as output_file:
         for symbol, count in sorted_tally:
             output_file.write(f"{symbol}: {count}\n")
     
-    print("Results written to Traded_Symbols.txt")
+    print(f"Results written to {output_filename}")
 
 if __name__ == "__main__":
     main()
