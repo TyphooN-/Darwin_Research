@@ -24,12 +24,10 @@ def find_target_directories(ftp_directory):
                     if month_pattern.match(month_dir):
                         target_dirs.append((os.path.join(quotes_dir, month_dir), entry))
     return target_dirs
-def list_darwins_in_quotes_dir(quotes_dir):
-    # Ensure quotes_dir is a valid directory path (string)
-    if not isinstance(quotes_dir, str) or not os.path.isdir(quotes_dir):
-        raise ValueError(f"Invalid directory path: {quotes_dir}")
-    darwins_3 = []
-    darwins_4 = []
+def list_darwins_in_quotes_dir(quotes_dir, parent_darwin):
+    darwins_3 = set()
+    darwins_4 = set()
+
     for file in os.listdir(quotes_dir):
         if file.endswith('.csv.gz'):
             match = re.match(r'^([A-Z]{3,4})\.\d+\.\d+_\d+_\d{4}-\d{2}-\d{2}\.\d+\.csv\.gz$', file)
@@ -38,7 +36,8 @@ def list_darwins_in_quotes_dir(quotes_dir):
                 if len(darwin) == 3:
                     darwins_3.add(darwin)
                 elif len(darwin) == 4:
-                    darwins_4.add(darwin)
+                    darwins_4.add((darwin, parent_darwin))
+
     return darwins_3, darwins_4
 def is_active_darwin(quotes_dir, darwin):
     active = False
@@ -99,20 +98,17 @@ def main():
     all_darwins_3 = set()
     all_darwins_4 = set()
     total_directories = len(target_directories)
-    for target_path in target_directories:
-        try:
-            darwins_3, darwins_4 = list_darwins_in_quotes_dir(target_path)
-        except ValueError as e:
-            print(e)
-            continue
+    for index, (target_dir, parent_darwin) in enumerate(target_directories):
+        darwins_3, darwins_4 = list_darwins_in_quotes_dir(target_dir, parent_darwin)
         all_darwins_3.update(darwins_3)
         all_darwins_4.update(darwins_4)
         for darwin in darwins_3:
             if is_active_darwin(target_dir, darwin):
                 active_darwins_3.add(darwin)
-        for darwin in darwins_4:
+        for darwin, parent in darwins_4:
             if is_active_darwin(target_dir, darwin):
-                active_darwins_4.add((darwin))
+                active_darwins_4.add((darwin, parent))
+
         # Calculate and print the progress percentage
         progress_percentage = (index + 1) / total_directories * 100
         total_darwins = len(all_darwins_3) + len(all_darwins_4)
@@ -120,11 +116,12 @@ def main():
         print(f"Processed {target_dir} ({progress_percentage:.2f}% complete):")
         print(f"  - Known DARWINs: {total_darwins}")
         print(f"  - Active DARWINs: {total_active_darwins}\n")
-    # Count found directories as known DARWINs
+
+    # Count base 3-letter directories as known DARWINs
     for entry in os.listdir(ftp_directory):
         if len(entry) == 3 and re.match(r'^[A-Z]{3}$', entry):
             all_darwins_3.add(entry)
-        if len(entry) == 4 and re.match(r'^[A-Z]{3}$', entry):
+        if len(entry) == 4 and re.match(r'^[A-Z]{4}$', entry):
             all_darwins_4.add(entry)
     # Extract the base letters from the DARWINs for letter counts
     letter_counts = Counter(darwin[0] for darwin in all_darwins_3)
