@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import time
+import datetime
 
 # Path to your ChromeDriver
 chrome_driver_path = '/usr/bin/chromedriver'
@@ -53,7 +54,7 @@ try:
 
         # Debugging: Print the page source after calculation to verify if values are displayed
         time.sleep(2)  # Wait to allow time for the results to load
-#       print(driver.page_source)
+        # print(driver.page_source)
 
         # Locate the rating and allocation elements
         rating_element = wait.until(EC.visibility_of_element_located((By.XPATH, '//p[text()="Your rating:"]/following-sibling::p/span')))
@@ -86,8 +87,12 @@ try:
 
 finally:
     # Save results to CSV
+    now = datetime.datetime.now()
+    date_string = now.strftime("%Y%m%d_%H%M%S")
+    filename = f"Darwinex_Rating_Cap_{date_string}.csv"
     df = pd.DataFrame(results)
-    df.to_csv('Darwinex_Rating_Cap.csv', index=False)
+    df.to_csv(filename, index=False)
 
     # Close the browser
     driver.quit()
+
